@@ -1,65 +1,23 @@
 
-// Configuration - User should replace these
+// Configuration
 const CONFIG = {
-    // Replace with your Google Apps Script Web App URL
-    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx8ru2lkDM6NLFB1TX2axglT-4ch_bnLxD7rqt902YA9PJs7O6C_mR8w1W7uVbnhcK-Mg/exec',
-    // Mock data in case the script is not connected yet
-    MOCK_DATA: {
-        breakfast: [
-            "Poha 🍚",
-            "Upma 🍲",
-            "Thalipith 🫓",
-            "Dosa 🥞",
-            "Idli 🍘",
-            "Bread Butter 🍞🧈",
-            "PBJ Sandwich 🥪",
-            "Dhokla 🍰",
-            "Shevyancha Upma 🍜"
-        ],
-        lunch: [
-            "Bhendi 🌿",
-            "Gawar 🫘",
-            "Tondli 🥒",
-            "Batata 🥔",
-            "Kanda Batata Rassa 🍛",
-            "Shev Bhaji 🍛",
-            "Pav Bhaji 🍞🍛",
-            "Aloo Paratha 🫓",
-            "Misal 🌶️🍛",
-            "Flower Batata 🥦🥔",
-            "Watana 🟢",
-            "Matki 🌱",
-            "Chole 🫘🍛",
-            "Vangi Bharit 🍆",
-            "Bharli Vangi 🍆🍛",
-            "Capsicum 🫑"
-        ],
-        dinner: [
-            "Bhendi 🌿",
-            "Gawar 🫘",
-            "Tondli 🥒",
-            "Batata 🥔",
-            "Kanda Batata Rassa 🍛",
-            "Shev Bhaji 🍛",
-            "Pav Bhaji 🍞🍛",
-            "Aloo Paratha 🫓",
-            "Misal 🌶️🍛",
-            "Flower Batata 🥦🥔",
-            "Watana 🟢",
-            "Matki 🌱",
-            "Chole 🫘🍛",
-            "Vangi Bharit 🍆",
-            "Bharli Vangi 🍆🍛",
-            "Capsicum 🫑"
-        ]
-    }
+    // Replace with your Google Apps Script Web App URL if persistence is needed
+    SCRIPT_URL: 'REPLACE_WITH_YOUR_APPS_SCRIPT_URL',
+    MENU_DATA_URL: 'menu.json'
 };
 
+let menuData = [];
 let currentMeal = 'breakfast';
-let options = CONFIG.MOCK_DATA.breakfast;
+let options = [];
+let todaySelections = {
+    breakfast: null,
+    lunch: null,
+    dinner: null
+};
+
 let isSpinning = false;
 let startAngle = 0;
-let arc = Math.PI / (options.length / 2);
+let arc = 0;
 let spinTimeout = null;
 
 const canvas = document.getElementById('wheel-canvas');
@@ -68,8 +26,55 @@ const spinBtn = document.getElementById('spin-btn');
 const resultCard = document.getElementById('result-card');
 const chosenDishText = document.getElementById('chosen-dish');
 
-function getColor(index, total) {
-    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#FF9F1C', '#2AB7CA', '#F0A6CA'];
+// Initialize
+window.addEventListener('load', async () => {
+    await loadMenu();
+    updateMealOptions();
+    drawWheel();
+});
+
+async function loadMenu() {
+    try {
+        const response = await fetch(CONFIG.MENU_DATA_URL);
+        const data = await response.json();
+        menuData = data.dishes;
+    } catch (e) {
+        console.error('Failed to load menu.json, using defaults', e);
+        // Fallback if file is missing
+        menuData = [
+            { name: "Fallback Dish 1", meals: ["breakfast", "lunch", "dinner"], days: [] },
+            { name: "Fallback Dish 2", meals: ["breakfast", "lunch", "dinner"], days: [] }
+        ];
+    }
+}
+
+function updateMealOptions() {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const today = days[new Date().getDay()];
+
+    // 1. Filter by meal and day preferences
+    options = menuData.filter(dish => {
+        const mealMatch = dish.meals.includes(currentMeal);
+        const dayMatch = dish.days.length === 0 || dish.days.includes(today);
+        return mealMatch && dayMatch;
+    }).map(d => d.name);
+
+    // 2. Prevent repetition between lunch and dinner
+    if (currentMeal === 'lunch' && todaySelections.dinner) {
+        options = options.filter(opt => opt !== todaySelections.dinner);
+    } else if (currentMeal === 'dinner' && todaySelections.lunch) {
+        options = options.filter(opt => opt !== todaySelections.lunch);
+    }
+
+    // Default if no options found
+    if (options.length === 0) options = ["No options for today!"];
+
+    arc = Math.PI / (options.length / 2);
+    startAngle = 0;
+}
+
+function getColor(index) {
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#FF9F1C', '#2AB7CA', '#F0A6CA', '#9B5DE5', '#00BBF9'];
     return colors[index % colors.length];
 }
 
@@ -80,33 +85,76 @@ function drawWheel() {
     canvas.height = cw;
     const centerX = cw / 2;
     const centerY = cw / 2;
-    const radius = cw / 2 - 10;
+    const radius = cw / 2 - 15;
 
     ctx.clearRect(0, 0, cw, cw);
-
-    arc = Math.PI / (options.length / 2);
 
     options.forEach((opt, i) => {
         const angle = startAngle + i * arc;
 
-        ctx.fillStyle = getColor(i, options.length);
+        // Piece
+        ctx.fillStyle = getColor(i);
         ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
         ctx.arc(centerX, centerY, radius, angle, angle + arc, false);
-        ctx.arc(centerX, centerY, 0, angle + arc, angle, true);
+        ctx.lineTo(centerX, centerY);
         ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
+        // Text
         ctx.save();
         ctx.fillStyle = "white";
-        ctx.translate(centerX + Math.cos(angle + arc / 2) * (radius * 0.7),
-            centerY + Math.sin(angle + arc / 2) * (radius * 0.7));
-        ctx.rotate(angle + arc / 2 + Math.PI / 2);
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angle + arc / 2);
 
-        ctx.font = 'bold 16px Outfit';
-        const text = opt.split(' ')[0]; // Take first word if emoji
-        ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+        // Handle long text: Wrap or Scale
+        const maxTextWidth = radius * 0.7;
+        let fontSize = options.length > 8 ? 12 : 16;
+        if (options.length > 12) fontSize = 10;
+        ctx.font = `bold ${fontSize}px Outfit`;
+
+        const words = opt.split(' ');
+        let line = '';
+        let lines = [];
+
+        for (let n = 0; n < words.length; n++) {
+            let testLine = line + words[n] + ' ';
+            let metrics = ctx.measureText(testLine);
+            if (metrics.width > maxTextWidth && n > 0) {
+                lines.push(line);
+                line = words[n] + ' ';
+            } else {
+                line = testLine;
+            }
+        }
+        lines.push(line);
+
+        // Draw multiple lines
+        const lineHeight = fontSize * 1.2;
+        const totalHeight = lines.length * lineHeight;
+        lines.forEach((l, index) => {
+            ctx.fillText(l.trim(), radius * 0.4, (index * lineHeight) - (totalHeight / 2) + (lineHeight / 2) + 5);
+        });
+
         ctx.restore();
     });
+
+    // Center Hub
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 20, 0, Math.PI * 2);
+    ctx.fillStyle = '#1A1A2E';
+    ctx.fill();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 4;
+    ctx.stroke();
 }
+
+// Spin logic
+let spinAngleStart = 0;
+let spinTime = 0;
+let spinTimeTotal = 0;
 
 function rotateWheel() {
     spinTime += 30;
@@ -120,23 +168,23 @@ function rotateWheel() {
     spinTimeout = setTimeout(rotateWheel, 30);
 }
 
-let spinAngleStart = 0;
-let spinTime = 0;
-let spinTimeTotal = 0;
-
 function stopRotateWheel() {
     clearTimeout(spinTimeout);
     isSpinning = false;
     spinBtn.disabled = false;
 
-    const degrees = startAngle * 180 / Math.PI + 90;
-    const arcd = arc * 180 / Math.PI;
-    const index = Math.floor((360 - degrees % 360) / arcd);
+    // Calculate winning index (90 degrees adjustment for top pointer)
+    const degrees = (startAngle * 180 / Math.PI) + 90;
+    const arcd = (arc * 180 / Math.PI);
+    const index = Math.floor((360 - (degrees % 360)) / arcd);
 
     const result = options[(index + options.length) % options.length];
 
     chosenDishText.innerText = result;
     resultCard.style.display = 'block';
+
+    // Save to current session to avoid repeats
+    todaySelections[currentMeal] = result;
 
     confetti({
         particleCount: 150,
@@ -153,13 +201,13 @@ function easeOut(t, b, c, d) {
 }
 
 function spin() {
-    if (isSpinning) return;
+    if (isSpinning || options.length <= 1) return;
 
     isSpinning = true;
     spinBtn.disabled = true;
     resultCard.style.display = 'none';
 
-    spinAngleStart = Math.random() * 10 + 10;
+    spinAngleStart = Math.random() * 10 + 20;
     spinTime = 0;
     spinTimeTotal = Math.random() * 3000 + 4000;
     rotateWheel();
@@ -172,35 +220,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentMeal = btn.dataset.meal;
-        options = CONFIG.MOCK_DATA[currentMeal];
+        updateMealOptions();
         resultCard.style.display = 'none';
-        startAngle = 0;
         drawWheel();
     });
 });
 
 spinBtn.addEventListener('click', spin);
-
-// Initial Load
-window.addEventListener('load', () => {
-    drawWheel();
-    fetchRemoteData();
-});
-
-// Fetching from Google Sheets (Placeholder logic)
-async function fetchRemoteData() {
-    if (CONFIG.SCRIPT_URL.includes('REPLACE')) return;
-
-    try {
-        const res = await fetch(CONFIG.SCRIPT_URL + '?action=getMenu');
-        const data = await res.json();
-        CONFIG.MOCK_DATA = data;
-        options = CONFIG.MOCK_DATA[currentMeal];
-        drawWheel();
-    } catch (e) {
-        console.warn('Could not fetch remote data, using mocks.');
-    }
-}
 
 document.getElementById('save-btn').addEventListener('click', async () => {
     const dish = chosenDishText.innerText;
@@ -209,10 +235,14 @@ document.getElementById('save-btn').addEventListener('click', async () => {
         return;
     }
 
-    await fetch(CONFIG.SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify({ action: 'saveHistory', meal: currentMeal, dish: dish, date: new Date().toISOString() })
-    });
-    alert('Saved to History!');
+    try {
+        await fetch(CONFIG.SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ action: 'saveHistory', meal: currentMeal, dish: dish, date: new Date().toISOString() })
+        });
+        alert('Saved to History!');
+    } catch (e) {
+        alert('Error saving to history.');
+    }
 });

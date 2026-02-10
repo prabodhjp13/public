@@ -167,9 +167,12 @@ h1 {
 }
 
 #chosen-dish {
-  font-size: 2rem;
+  font-size: 1.8rem;
   color: var(--primary);
   margin-top: 10px;
+  line-height: 1.2;
+  word-wrap: break-word;
+  padding: 0 10px;
 }
 
 .actions {

@@ -1,0 +1,22 @@
+{
+  "dishes": [
+    { "name": "Pancakes 🥞", "meals": ["breakfast"], "days": ["Sunday"] },
+    { "name": "Eggs & Toast 🍳", "meals": ["breakfast"], "days": [] },
+    { "name": "Oatmeal 🥣", "meals": ["breakfast"], "days": ["Monday", "Wednesday", "Friday"] },
+    { "name": "Smoothie 🥤", "meals": ["breakfast"], "days": [] },
+    { "name": "Parfait 🍓", "meals": ["breakfast"], "days": [] },
+    { "name": "Waffles 🧇", "meals": ["breakfast"], "days": ["Saturday"] },
+    { "name": "Classic club sandwich with many layers 🥪", "meals": ["lunch"], "days": [] },
+    { "name": "Garden Fresh Salad with Balsamic 🥗", "meals": ["lunch"], "days": [] },
+    { "name": "Spaghetti Carbonara 🍝", "meals": ["lunch", "dinner"], "days": [] },
+    { "name": "Street Style Tacos 🌮", "meals": ["lunch", "dinner"], "days": [] },
+    { "name": "Juicy Cheese Burger 🍔", "meals": ["lunch", "dinner"], "days": ["Saturday", "Sunday"] },
+    { "name": "Homemade Pepperoni Pizza 🍕", "meals": ["lunch", "dinner"], "days": ["Friday"] },
+    { "name": "Grilled Sirloin Steak 🥩", "meals": ["dinner"], "days": [] },
+    { "name": "Pan-Seared Salmon 🐟", "meals": ["dinner"], "days": [] },
+    { "name": "Creamy Tomato Soup 🥣", "meals": ["dinner"], "days": [] },
+    { "name": "Vegetable Stir Fry 🥢", "meals": ["lunch", "dinner"], "days": [] },
+    { "name": "Roasted Chicken 🍗", "meals": ["dinner"], "days": ["Sunday"] },
+    { "name": "Three-Layer Beef Lasagna 🇮🇹", "meals": ["dinner"], "days": [] }
+  ]
+}
