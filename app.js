@@ -5,10 +5,55 @@ const CONFIG = {
     SCRIPT_URL: 'REPLACE_WITH_YOUR_APPS_SCRIPT_URL',
     // Mock data in case the script is not connected yet
     MOCK_DATA: {
-        breakfast: ['Pancakes 🥞', 'Eggs & Toast 🍳', 'Oatmeal 🥣', 'Smoothie 🥤', 'Parfait 🍓', 'Waffles 🧇'],
-        lunch: ['Sandwich 🥪', 'Salad 🥗', 'Pasta 🍝', 'Tacos 🌮', 'Burger 🍔', 'Pizza 🍕'],
-        dinner: ['Steak 🥩', 'Salmon 🐟', 'Soup 🥣', 'Stir Fry 🥢', 'Chicken 🍗', 'Lasagna 🇮🇹']
+        breakfast: [
+            "Poha 🍚",
+            "Upma 🍲",
+            "Thalipith 🫓",
+            "Dosa 🥞",
+            "Idli 🍘",
+            "Bread Butter 🍞🧈",
+            "PBJ Sandwich 🥪",
+            "Dhokla 🍰",
+            "Shevyancha Upma 🍜"
+        ],
+        lunch: [
+            "Bhendi 🌿",
+            "Gawar 🫘",
+            "Tondli 🥒",
+            "Batata 🥔",
+            "Kanda Batata Rassa 🍛",
+            "Shev Bhaji 🍛",
+            "Pav Bhaji 🍞🍛",
+            "Aloo Paratha 🫓",
+            "Misal 🌶️🍛",
+            "Flower Batata 🥦🥔",
+            "Watana 🟢",
+            "Matki 🌱",
+            "Chole 🫘🍛",
+            "Vangi Bharit 🍆",
+            "Bharli Vangi 🍆🍛",
+            "Capsicum 🫑"
+        ],
+        dinner: [
+            "Bhendi 🌿",
+            "Gawar 🫘",
+            "Tondli 🥒",
+            "Batata 🥔",
+            "Kanda Batata Rassa 🍛",
+            "Shev Bhaji 🍛",
+            "Pav Bhaji 🍞🍛",
+            "Aloo Paratha 🫓",
+            "Misal 🌶️🍛",
+            "Flower Batata 🥦🥔",
+            "Watana 🟢",
+            "Matki 🌱",
+            "Chole 🫘🍛",
+            "Vangi Bharit 🍆",
+            "Bharli Vangi 🍆🍛",
+            "Capsicum 🫑"
+        ]
     }
+};
 };
 
 let currentMeal = 'breakfast';
@@ -172,3 +217,4 @@ document.getElementById('save-btn').addEventListener('click', async () => {
     });
     alert('Saved to History!');
 });
+
