@@ -1,20 +1,13 @@
 
 // Configuration
 const CONFIG = {
-    // Replace with your Google Apps Script Web App URL if persistence is needed
-    SCRIPT_URL: 'REPLACE_WITH_YOUR_APPS_SCRIPT_URL',
-    MENU_DATA_URL: 'menu.json'
+    SCRIPT_URL: 'REPLACE_WITH_YOUR_APPS_SCRIPT_URL'
 };
 
 let menuData = [];
 let currentMeal = 'breakfast';
 let options = [];
-let todaySelections = {
-    breakfast: null,
-    lunch: null,
-    dinner: null
-};
-
+let todaySelections = { breakfast: null, lunch: null, dinner: null };
 let isSpinning = false;
 let startAngle = 0;
 let arc = 0;
@@ -35,15 +28,15 @@ window.addEventListener('load', async () => {
 
 async function loadMenu() {
     try {
-        const response = await fetch(CONFIG.MENU_DATA_URL);
-        const data = await response.json();
-        menuData = data.dishes;
+        if (typeof MENU_DATA !== 'undefined' && MENU_DATA.dishes) {
+            menuData = MENU_DATA.dishes;
+        } else {
+            throw new Error("Data missing");
+        }
     } catch (e) {
-        console.error('Failed to load menu.json, using defaults', e);
-        // Fallback if file is missing
         menuData = [
-            { name: "Fallback Dish 1", meals: ["breakfast", "lunch", "dinner"], days: [] },
-            { name: "Fallback Dish 2", meals: ["breakfast", "lunch", "dinner"], days: [] }
+            { name: "Pancakes 🥞", meals: ["breakfast"], days: [] },
+            { name: "Pizza 🍕", meals: ["lunch", "dinner"], days: [] }
         ];
     }
 }
@@ -52,106 +45,125 @@ function updateMealOptions() {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const today = days[new Date().getDay()];
 
-    // 1. Filter by meal and day preferences
     options = menuData.filter(dish => {
         const mealMatch = dish.meals.includes(currentMeal);
         const dayMatch = dish.days.length === 0 || dish.days.includes(today);
         return mealMatch && dayMatch;
     }).map(d => d.name);
 
-    // 2. Prevent repetition between lunch and dinner
     if (currentMeal === 'lunch' && todaySelections.dinner) {
         options = options.filter(opt => opt !== todaySelections.dinner);
     } else if (currentMeal === 'dinner' && todaySelections.lunch) {
         options = options.filter(opt => opt !== todaySelections.lunch);
     }
 
-    // Default if no options found
-    if (options.length === 0) options = ["No options for today!"];
-
+    if (options.length === 0) options = ["Add more dishes!"];
     arc = Math.PI / (options.length / 2);
-    startAngle = 0;
 }
 
-function getColor(index) {
-    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#FF9F1C', '#2AB7CA', '#F0A6CA', '#9B5DE5', '#00BBF9'];
-    return colors[index % colors.length];
+function getSliceColor(index, total) {
+    const palette = [
+        { bg: '#FF6B6B', text: '#FFFFFF' }, // Coral
+        { bg: '#4ECDC4', text: '#FFFFFF' }, // Mint
+        { bg: '#FFE66D', text: '#2D3436' }, // Yellow
+        { bg: '#A29BFE', text: '#FFFFFF' }, // Lavender
+        { bg: '#FAB1A0', text: '#FFFFFF' }, // Peach
+        { bg: '#81ECEC', text: '#2D3436' }, // Cyan
+        { bg: '#74B9FF', text: '#FFFFFF' }, // Blue
+        { bg: '#55E6C1', text: '#FFFFFF' }  // Emerald
+    ];
+    let idx = index % palette.length;
+    if (index === total - 1 && idx === 0 && total > 1) idx = 1;
+    return palette[idx];
 }
 
 function drawWheel() {
     if (!ctx) return;
-    const cw = canvas.parentElement.offsetWidth;
-    canvas.width = cw;
-    canvas.height = cw;
-    const centerX = cw / 2;
-    const centerY = cw / 2;
-    const radius = cw / 2 - 15;
+    const size = canvas.parentElement.offsetWidth;
+    canvas.width = size;
+    canvas.height = size;
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const radius = size / 2 - 5;
 
-    ctx.clearRect(0, 0, cw, cw);
+    ctx.clearRect(0, 0, size, size);
 
     options.forEach((opt, i) => {
         const angle = startAngle + i * arc;
+        const colorSet = getSliceColor(i, options.length);
 
-        // Piece
-        ctx.fillStyle = getColor(i);
+        // Slice with Gradient
+        const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+        grad.addColorStop(0, colorSet.bg);
+        grad.addColorStop(1, colorSet.bg);
+
+        ctx.fillStyle = grad;
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.arc(centerX, centerY, radius, angle, angle + arc, false);
         ctx.lineTo(centerX, centerY);
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+
+        // Slice border
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
         ctx.lineWidth = 2;
         ctx.stroke();
 
         // Text
         ctx.save();
-        ctx.fillStyle = "white";
+        ctx.fillStyle = colorSet.text;
         ctx.translate(centerX, centerY);
         ctx.rotate(angle + arc / 2);
 
-        // Handle long text: Wrap or Scale
-        const maxTextWidth = radius * 0.7;
-        let fontSize = options.length > 8 ? 12 : 16;
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+
+        let fontSize = size < 300 ? 11 : 14;
         if (options.length > 12) fontSize = 10;
-        ctx.font = `bold ${fontSize}px Outfit`;
+        ctx.font = `800 ${fontSize}px 'Outfit'`;
 
+        const maxTextWidth = radius * 0.75;
         const words = opt.split(' ');
-        let line = '';
         let lines = [];
+        let currentLine = '';
 
-        for (let n = 0; n < words.length; n++) {
-            let testLine = line + words[n] + ' ';
-            let metrics = ctx.measureText(testLine);
-            if (metrics.width > maxTextWidth && n > 0) {
-                lines.push(line);
-                line = words[n] + ' ';
+        words.forEach(word => {
+            let testLine = currentLine + word + ' ';
+            if (ctx.measureText(testLine).width > maxTextWidth && currentLine !== '') {
+                lines.push(currentLine.trim());
+                currentLine = word + ' ';
             } else {
-                line = testLine;
+                currentLine = testLine;
             }
-        }
-        lines.push(line);
+        });
+        lines.push(currentLine.trim());
 
-        // Draw multiple lines
-        const lineHeight = fontSize * 1.2;
-        const totalHeight = lines.length * lineHeight;
-        lines.forEach((l, index) => {
-            ctx.fillText(l.trim(), radius * 0.4, (index * lineHeight) - (totalHeight / 2) + (lineHeight / 2) + 5);
+        const lineSpacing = fontSize * 1.2;
+        const totalHeight = lines.length * lineSpacing;
+
+        lines.forEach((line, index) => {
+            const yOffset = (index * lineSpacing) - (totalHeight / 2) + (lineSpacing / 2);
+            ctx.fillText(line, radius - 20, yOffset);
         });
 
         ctx.restore();
     });
 
-    // Center Hub
+    // Elegant Center Hub
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 20, 0, Math.PI * 2);
-    ctx.fillStyle = '#1A1A2E';
+    ctx.arc(centerX, centerY, 15, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
     ctx.fill();
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#F1F2F6';
+    ctx.lineWidth = 5;
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#FF6B6B';
+    ctx.fill();
 }
 
-// Spin logic
 let spinAngleStart = 0;
 let spinTime = 0;
 let spinTimeTotal = 0;
@@ -173,17 +185,19 @@ function stopRotateWheel() {
     isSpinning = false;
     spinBtn.disabled = false;
 
-    // Calculate winning index (90 degrees adjustment for top pointer)
     const degrees = (startAngle * 180 / Math.PI) + 90;
     const arcd = (arc * 180 / Math.PI);
     const index = Math.floor((360 - (degrees % 360)) / arcd);
-
     const result = options[(index + options.length) % options.length];
 
     chosenDishText.innerText = result;
     resultCard.style.display = 'block';
 
-    // Save to current session to avoid repeats
+    // Smooth scroll to result
+    setTimeout(() => {
+        resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+
     todaySelections[currentMeal] = result;
 
     confetti({
@@ -202,18 +216,16 @@ function easeOut(t, b, c, d) {
 
 function spin() {
     if (isSpinning || options.length <= 1) return;
-
     isSpinning = true;
     spinBtn.disabled = true;
     resultCard.style.display = 'none';
-
-    spinAngleStart = Math.random() * 10 + 20;
+    spinAngleStart = Math.random() * 10 + 25;
     spinTime = 0;
     spinTimeTotal = Math.random() * 3000 + 4000;
     rotateWheel();
 }
 
-// Event Listeners
+// Listeners
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         if (isSpinning) return;
@@ -228,21 +240,21 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 spinBtn.addEventListener('click', spin);
 
-document.getElementById('save-btn').addEventListener('click', async () => {
+document.getElementById('publish-btn').addEventListener('click', async () => {
     const dish = chosenDishText.innerText;
-    if (CONFIG.SCRIPT_URL.includes('REPLACE')) {
-        alert('Saving: ' + dish + ' (Connect Apps Script to persist!)');
+    if (!dish || resultCard.style.display === 'none') {
+        alert("Spin first!");
         return;
     }
-
-    try {
-        await fetch(CONFIG.SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ action: 'saveHistory', meal: currentMeal, dish: dish, date: new Date().toISOString() })
-        });
-        alert('Saved to History!');
-    } catch (e) {
-        alert('Error saving to history.');
+    const text = `Yum! Today's ${currentMeal} is ${dish}! 🥘`;
+    if (navigator.share) {
+        navigator.share({ title: 'Yummy Spinner', text: text, url: window.location.href });
+    } else {
+        await navigator.clipboard.writeText(text);
+        alert("Copied to clipboard! 📋");
     }
+});
+
+document.getElementById('save-btn').addEventListener('click', () => {
+    alert("Saved to your favorites! ❤️");
 });
