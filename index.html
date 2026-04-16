@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yummy Spinner 🥘</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Yummy Spinner 🥘</h1>
+            <p class="subtitle">What should we eat today?</p>
+        </header>
+
+        <nav class="meal-tabs">
+            <button class="tab-btn active" data-meal="breakfast">
+                <i class="fas fa-egg"></i>
+                <span>Breakfast</span>
+            </button>
+            <button class="tab-btn" data-meal="lunch">
+                <i class="fas fa-sun"></i>
+                <span>Lunch</span>
+            </button>
+            <button class="tab-btn" data-meal="dinner">
+                <i class="fas fa-moon"></i>
+                <span>Dinner</span>
+            </button>
+        </nav>
+
+        <div class="wheel-section">
+            <div class="wheel-pointer">
+                <svg viewBox="0 0 30 40">
+                    <path d="M15 40L30 0H0L15 40Z" fill="#FF6B6B" />
+                </svg>
+            </div>
+            <div class="wheel-wrapper">
+                <canvas id="wheel-canvas"></canvas>
+            </div>
+        </div>
+
+        <button id="spin-btn" class="spin-btn">Spin to Eat!</button>
+
+        <div id="result-card" class="result-card">
+            <p>Today's Special</p>
+            <h2 id="chosen-dish">...</h2>
+        </div>
+
+        <div class="footer-actions">
+            <button id="save-btn" class="action-btn">
+                <i class="fas fa-heart"></i> Save
+            </button>
+            <button id="publish-btn" class="action-btn">
+                <i class="fas fa-paper-plane"></i> Share
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="menu-data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

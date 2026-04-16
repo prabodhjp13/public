@@ -1,0 +1,395 @@
+const MENU_DATA = {
+    "dishes": [
+        {
+            "name": "Poha 🍚",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Upma 🍲",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Thalipith 🫓",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Dosa 🥞",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Idli 🍘",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Bread Butter 🍞🧈",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "PBJ Sandwich 🥪",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Dhokla 🍰",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Shevyancha Upma 🍜",
+            "meals": [
+                "breakfast"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Bhendi 🌿",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Gawar 🫘",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Tondli 🥒",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Batata 🥔",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Kanda Batata Rassa 🍛",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Shev Bhaji 🍛",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Pav Bhaji 🍞🍛",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Aloo Paratha 🫓",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Misal 🌶️🍛",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Flower Batata 🥦🥔",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Watana 🟢",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Matki 🌱",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Chole 🫘🍛",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Vangi Bharit 🍆",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Bharli Vangi 🍆🍛",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        },
+        {
+            "name": "Capsicum 🫑",
+            "meals": [
+                "lunch",
+                "dinner"
+            ],
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ]
+        }
+    ]
+};
